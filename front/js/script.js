@@ -9,7 +9,7 @@ fetch("http://localhost:3000/api/products")
         console.log(value[0].name);
         for (i = 0; i < value.length; i++) {
             let items = document.getElementById('items');
-            items.innerHTML += `<a href="">
+            items.innerHTML += `<a href="Z:/OpenClassrooms/P5_Mbasse_Luther/front/html/product.html?_id=${value[i]._id}">
             <article>
               <img src="${value[i].imageUrl}" alt="${value[i].altTxt}">
               <h3 class="productName">${value[i].name}</h3>
