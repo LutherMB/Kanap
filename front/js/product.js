@@ -14,7 +14,7 @@ fetch(`http://localhost:3000/api/products/${id}`)
         console.log(value);
         // Insertion des infos dans le DOM
         let img = document.getElementsByClassName("item__img")[0];
-        img.innerHTML += `<img src="${value.imageUrl}" alt="Photographie d'un canapé">`
+        img.innerHTML += `<img id="item__image" src="${value.imageUrl}" alt="${value.altTxt}">`
         
         let title = document.getElementById("title");
         title.innerHTML += `${value.name}`
@@ -51,7 +51,10 @@ document.getElementById("addToCart").addEventListener('click', function() {
         objectID : id,
         objectQty : Number(document.getElementById('quantity').value),
         objectColor : document.getElementById('colors').value,
-        objectName : document.getElementById('title').textContent
+        objectName : document.getElementById('title').textContent,
+        objectUrl : document.getElementById('item__image').src,
+        objectAlt : document.getElementById('item__image').alt,
+        objectDesc : document.getElementById('description').textContent
     };
 
     // Vérif si l'objet-couleur existe déjà
