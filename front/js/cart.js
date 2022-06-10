@@ -21,7 +21,7 @@ function buildCartArticle(articleJSON, price) {
           <div class="cart__item__content__settings">
             <div class="cart__item__content__settings__quantity">
               <p>Qté : </p>
-              <input onchange="checkQuantity(this)" type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${articleJSON.objectQty}">
+              <input onchange="checkQuantity(this)" type="number" id="${articleJSON.objectID}__qty" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${articleJSON.objectQty}">
             </div>
             <div class="cart__item__content__settings__delete">
               <p onclick="deleteObj(this)" class="deleteItem">Supprimer</p>
@@ -43,17 +43,27 @@ for (i = 0; i < localStorage.length; i++) {
             let cartItems = document.getElementById('cart__items');
             articleJSON.temporaryPrice = data.price;
             cartItems.innerHTML += buildCartArticle(articleJSON);
-            priceProduct.push(data.price * articleJSON.objectQty);
-            quantityProduct.push(articleJSON.objectQty);
-            totalPrice += data.price * articleJSON.objectQty;
+
             totalQty += articleJSON.objectQty;
-            totalPriceHTML.textContent = priceProduct.reduce((a,b)=>{ // ???
-                return totalPrice = a + b;
-            }, 0);
-            console.log("Total price : " + totalPrice + " ; Total qty : " + totalQty);
             document.getElementById('totalQuantity').innerText = totalQty;
+            checkQuantity(document.getElementById(articleJSON.objectID + "__qty"));
+            checkTotalPrice();
         });
 
+}
+
+function checkTotalPrice() {
+  let articles = document.getElementsByClassName("itemQuantity");
+  let tempTotalPrice = 0;
+  [].forEach.call(articles, function (item) {
+      let parent = item.parentElement.closest('article');
+      let dataId = parent.getAttribute('data-id');
+      let innerPrice = parseInt(document.getElementById(dataId + "__price").innerHTML.replace("€", ""));
+      let qTy = item.value;
+      let articlePrice = qTy * innerPrice;
+      tempTotalPrice += articlePrice;
+  });
+  totalPriceHTML.innerHTML = tempTotalPrice;
 }
 
 function checkQuantity (elt) {
@@ -74,23 +84,25 @@ function checkQuantity (elt) {
   if (checkedObj.objectQty > oldQty) {
     totalQty += checkedObj.objectQty - oldQty;
     document.getElementById('totalQuantity').innerText = totalQty;
-    //* trouver moyen d'ajuster le prix
   } else if (checkedObj.objectQty < oldQty) {
     totalQty -= oldQty - checkedObj.objectQty;
     document.getElementById('totalQuantity').innerText = totalQty;
   }
 
   console.log(elt.value);
+
+  checkTotalPrice();
 };
 
 function deleteObj (elt) {
-  var parent = elt.parentElement.closest('article');
-  var deletedKey = parent.getAttribute('data-name') + "-" + parent.getAttribute('data-color');
-  var deletedObj = JSON.parse(localStorage[deletedKey]);
+  let parent = elt.parentElement.closest('article');
+  let deletedKey = parent.getAttribute('data-name') + "-" + parent.getAttribute('data-color');
+  let deletedObj = JSON.parse(localStorage[deletedKey]);
   // Ajustement de la Qté
   totalQty -= deletedObj.objectQty;
   document.getElementById('totalQuantity').innerText = totalQty;
   // Suppression de l'obj LocalStorage et de l'article HTML
   localStorage.removeItem(deletedKey);
   parent.remove();
+  checkTotalPrice()
 };
