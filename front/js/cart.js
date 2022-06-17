@@ -120,12 +120,6 @@ const regexAdress = /^[a-zA-Z0-9\s,.'-]{3,}$/;
 const regexEmail =
   /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-const prenom = document.getElementById("firstName");
-const nom = document.getElementById("lastName");
-const ville = document.getElementById("city");
-const adresse = document.getElementById("address");
-const mail = document.getElementById("email");
-
 form.firstName.addEventListener("change", (event) => {
   console.log(event.target.value);
   checkFirstName(event.target.value);
@@ -194,4 +188,24 @@ function checkEmail(email) {
   } else {
     emailErrorMsg.innerHTML = "Veuillez renseigner votre adresse mail !";
   }
+}
+
+// Envoi du formulaire
+
+function sendOrder() {
+  const prenom = document.getElementById("firstName").value;
+  const nom = document.getElementById("lastName").value;
+  const ville = document.getElementById("city").value;
+  const adresse = document.getElementById("address").value;
+  const mail = document.getElementById("email").value;
+
+  let contact = {
+    prenom: prenom,
+    nom: nom,
+    ville: ville,
+    adresse: adresse,
+    mail: mail,
+  };
+
+  const products = [];
 }
