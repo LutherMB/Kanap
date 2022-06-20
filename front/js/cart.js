@@ -269,7 +269,7 @@ function sendOrder() { // Récupère les infos du formulaire et les insère dans
   });
 }
 
-// TODO Penser à annuler si panier vide
+// Penser à annuler si panier vide
 
 function emptyCart() {
   if (localStorage.length = 0) { console.log("Panier vide!"); return true; }
