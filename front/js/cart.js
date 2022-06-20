@@ -209,12 +209,12 @@ form.order.addEventListener("click", (event) => {
     return;
   }
   // let isEmptyCart = emptyCart();
-  // if (isEmptyCart == true) {
-  //   return false;
-  // } else if (isEmptyCart == false) {
-  //   sendOrder();
-  // }
-  sendOrder();
+  if (emptyCart()) {
+    console.log("Panier vide!");
+    return false;
+  } else {
+    sendOrder();
+  }
 });
 
 function sendOrder() { // Récupère les infos du formulaire et les insère dans l'objet contact
@@ -272,6 +272,5 @@ function sendOrder() { // Récupère les infos du formulaire et les insère dans
 // Penser à annuler si panier vide
 
 function emptyCart() {
-  if (localStorage.length = 0) { console.log("Panier vide!"); return true; }
-  else { return false; }
-}
+  return localStorage.length == 0
+};
