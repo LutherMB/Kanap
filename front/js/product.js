@@ -73,6 +73,7 @@ document.getElementById("addToCart").addEventListener('click', function() {
             let newObj = JSON.stringify(findObjJson);
             localStorage.setItem(localStorage.key(i), newObj);
             console.log(`New qté : ${findObjJson.objectQty}`);
+            window.location.replace("./cart.html");
             return;
         } else {
             console.log("Pas dans le panier..");
@@ -81,5 +82,7 @@ document.getElementById("addToCart").addEventListener('click', function() {
     // L'objet n'est pas déjà présent dans le panier, ajout d'un nouvel obj au local Storage
     let objString = JSON.stringify(obj);
     localStorage.setItem(`${obj.objectName}-${obj.objectColor}`, objString);
+
+    window.location.replace("./cart.html")
 
 });
