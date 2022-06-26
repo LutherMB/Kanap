@@ -1,13 +1,35 @@
-let totalPrice = 0;
 let totalQty = 0;
-let foundPrice = 0;
 let priceProduct = [];
 let quantityProduct = [];
 
 const totalPriceHTML = document.getElementById("totalPrice");
 
+// Mise en place de la page panier
+for (i = 0; i < localStorage.length; i++) {
+
+  // On récupère l'objet via le local Storage
+  let article = localStorage.getItem(localStorage.key(i));
+  let articleJSON = JSON.parse(article);
+
+  // Puis on récupère les infos via une requête à l'API
+  let price = fetch("http://localhost:3000/api/products/" + articleJSON.objectID)
+  .then((result) => result.json())
+  .then((data) => {
+    articleJSON.temporaryPrice = data.price; // Variable utilisée dans la fonction buildCartArticle()
+    // Insertion de l'élément sur la page panier
+    let cartItems = document.getElementById('cart__items');
+    cartItems.innerHTML += buildCartArticle(articleJSON);
+    // Mise à jour des qtés et prix totaux
+    totalQty += articleJSON.objectQty;
+    document.getElementById('totalQuantity').innerText = totalQty;
+    checkQuantity(document.getElementById(articleJSON.objectID + "__qty"));
+    checkTotalPrice();
+  });
+  
+}
+
+// Crée l'élément sur la page panier
 function buildCartArticle(articleJSON, price) {
-    console.log(articleJSON);
     return `<article class="cart__item" data-id="${articleJSON.objectID}" data-color="${articleJSON.objectColor}" data-name="${articleJSON.objectName}">
         <div class="cart__item__img">
           <img src="${articleJSON.objectUrl}" alt="${articleJSON.objectAlt}">
@@ -31,28 +53,7 @@ function buildCartArticle(articleJSON, price) {
       </article>`;
 }
 
-for (i = 0; i < localStorage.length; i++) {
-    // On récupère les infos via le local Storage
-    let article = localStorage.getItem(localStorage.key(i));
-    if (localStorage.key(i) == "orderID") { console.log("orderid skipped"); continue; }
-    let articleJSON = JSON.parse(article);
-    let price = fetch("http://localhost:3000/api/products/" + articleJSON.objectID)
-        .then((result) => result.json())
-        .then((data) => {
-            foundPrice = data.price;
-            console.log("found price : " + foundPrice);
-            let cartItems = document.getElementById('cart__items');
-            articleJSON.temporaryPrice = data.price;
-            cartItems.innerHTML += buildCartArticle(articleJSON);
-
-            totalQty += articleJSON.objectQty;
-            document.getElementById('totalQuantity').innerText = totalQty;
-            checkQuantity(document.getElementById(articleJSON.objectID + "__qty"));
-            checkTotalPrice();
-        });
-
-}
-
+// Récupère les prix & qté de chaque article pour mettre à jour le prix total
 function checkTotalPrice() {
   let articles = document.getElementsByClassName("itemQuantity");
   let tempTotalPrice = 0;
@@ -67,6 +68,7 @@ function checkTotalPrice() {
   totalPriceHTML.innerHTML = tempTotalPrice;
 }
 
+// Mise à jour des qtés à chaque changement sur le panier
 function checkQuantity (elt) {
   var parent = elt.parentElement.closest('article');
 
@@ -81,7 +83,7 @@ function checkQuantity (elt) {
   checkedObj.objectQty = Number(elt.value);
   localStorage[checkedKey] = JSON.stringify(checkedObj);
 
-  // Ajustement de la quantité et du prix total
+  // Ajustement de la qté totale
   if (checkedObj.objectQty > oldQty) {
     totalQty += checkedObj.objectQty - oldQty;
     document.getElementById('totalQuantity').innerText = totalQty;
@@ -90,22 +92,22 @@ function checkQuantity (elt) {
     document.getElementById('totalQuantity').innerText = totalQty;
   }
 
-  console.log(elt.value);
-
-  checkTotalPrice();
+  checkTotalPrice(); // Re-check du prix total
 };
 
+// Suppression de l'article du Local Storage & de la page panier
 function deleteObj (elt) {
+  // Récupération de l'article dans le Local Storage
   let parent = elt.parentElement.closest('article');
   let deletedKey = parent.getAttribute('data-name') + "-" + parent.getAttribute('data-color');
   let deletedObj = JSON.parse(localStorage[deletedKey]);
-  // Ajustement de la Qté
+  // Ajustement de la Qté totale
   totalQty -= deletedObj.objectQty;
   document.getElementById('totalQuantity').innerText = totalQty;
   // Suppression de l'obj LocalStorage et de l'article HTML
   localStorage.removeItem(deletedKey);
   parent.remove();
-  checkTotalPrice()
+  checkTotalPrice() // Re-check du prix total
 };
 
 // Mise en place des Regex
@@ -118,7 +120,7 @@ const regexEmail =
   /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 form.firstName.addEventListener("input", (event) => { // Ecoute des changements sur l'input
-  console.log(event.target.value);
+  console.log(event.target.value);                    // event.target.value renvoie ce qui a été entré dans l'input
   checkFirstName(event.target.value);                 // Puis vérification via les Regex
 });
 
@@ -144,10 +146,10 @@ form.email.addEventListener("input", (event) => {
 
 function checkFirstName(prenom) {
   const firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
-  if (regexChar.test(prenom)) {
+  if (regexChar.test(prenom)) { // Si l'entrée passe le test Regex, renvoie true et n'affiche rien
     firstNameErrorMsg.innerHTML = "";
     return true
-  } else {
+  } else { // Si l'entrée ne passe pas le test Regex, renvoie false + affiche un message d'erreur
     firstNameErrorMsg.innerHTML = "Veuillez renseigner votre prénom !";
     return false
   }
@@ -198,26 +200,29 @@ function checkEmail(email) {
 }
 
 // Vérification du formulaire avant envoi au server
-// Event "click" car sur l'event "submit" la page redirect automatiquement & impossible de preventDefault
+//? Event "click" car sur l'event "submit" la page redirect automatiquement & impossible de preventDefault
 
 form.order.addEventListener("click", (event) => {
-  event.preventDefault();
+  event.preventDefault(); // Le clic n'envoie pas directement le formulaire au server
+  // isFormCompleted renvoie true si chaque champ est correct (true), renvoie false si au moins un champ est mal rempli (false)
   isFormCompleted = checkFirstName(form.firstName.value) && checkLastName(form.lastName.value) && checkAddress(form.address.value) && checkCity(form.city.value) && checkEmail(form.email.value);
 
   if (isFormCompleted == false) {
     console.log("Tous les champs ne sont pas remplis");
     return;
   }
-  // let isEmptyCart = emptyCart();
-  if (emptyCart()) {
+
+  if (emptyCart()) { // Vérifie si le panier est vide
     console.log("Panier vide!");
     return false;
-  } else {
+  } else { // Envoie des données au server
     sendOrder();
   }
 });
 
-function sendOrder() { // Récupère les infos du formulaire et les insère dans l'objet contact
+// Envoie des données au server
+function sendOrder() { 
+  // Récupère les infos du formulaire et les insère dans l'objet contact
   const prenom = document.getElementById("firstName").value;
   const nom = document.getElementById("lastName").value;
   const ville = document.getElementById("city").value;
@@ -240,13 +245,12 @@ function sendOrder() { // Récupère les infos du formulaire et les insère dans
     products.push(articleJSON.objectID);
   }
 
-  let body = {
+  let body = { // Mise en forme des données pour envoi au server
     'contact': contact,
     'products': products
   }
 
-  console.log(body);
-
+  // Requête POST pour envoyer les données au server et récupérer le numéro de commande ("orderId")
   let response = fetch("http://localhost:3000/api/products/order", {
     method: 'POST',
     headers: {
@@ -261,7 +265,7 @@ function sendOrder() { // Récupère les infos du formulaire et les insère dans
   })
   .then((data) => {
     console.log(data);
-    localStorage.setItem("orderID", data.orderId) // OrderID placé dans le LocalStorage avant changement de page
+    localStorage.setItem("orderID", data.orderId) // OrderID placé temporairement dans le LocalStorage avant changement de page
     window.location.replace("./confirmation.html");
   })
   .catch(function(err) {
@@ -269,8 +273,7 @@ function sendOrder() { // Récupère les infos du formulaire et les insère dans
   });
 }
 
-// Penser à annuler si panier vide
-
+// Renvoie true si le panier est vide
 function emptyCart() {
   return localStorage.length == 0
 };

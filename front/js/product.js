@@ -36,7 +36,6 @@ fetch(`http://localhost:3000/api/products/${id}`)
 
 // Ajout au panier
 document.getElementById("addToCart").addEventListener('click', function() {
-    console.log("click");
 
     // Vérification couleur & nombre d'articles
     if (document.getElementById('colors').value == "") {
@@ -57,22 +56,21 @@ document.getElementById("addToCart").addEventListener('click', function() {
         objectDesc : document.getElementById('description').textContent
     };
 
-    // Vérif si l'objet-couleur existe déjà
+    // Vérif si l'objet + couleur existe déjà
     for (i = 0; i < localStorage.length; i++) {
         if (localStorage.key(i) == obj.objectName + "-" + obj.objectColor) {
-            console.log("Trouvé!");
 
-            // L'objet trouvé dans le panier est parsé en JSON pour voir la Qté
+            // L'objet a été trouvé dans le panier, on le parse en JSON pour voir la Qté
             let findObj = localStorage.getItem(localStorage.key(i));
             let findObjJson = JSON.parse(findObj);
-            console.log(`Qté de base : ${findObjJson.objectQty}`);
+            // console.log(`Qté de base : ${findObjJson.objectQty}`);
 
             // Addition de la qté actuelle à la qté présente dans le panier
             findObjJson.objectQty = Number(findObjJson.objectQty) + Number(obj.objectQty);
             // L'objet est renvoyé au local Storage avec sa nouvelle Qté
             let newObj = JSON.stringify(findObjJson);
             localStorage.setItem(localStorage.key(i), newObj);
-            console.log(`New qté : ${findObjJson.objectQty}`);
+            // console.log(`New qté : ${findObjJson.objectQty}`);
             window.location.replace("./cart.html");
             return;
         } else {
