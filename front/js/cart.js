@@ -18,10 +18,15 @@ for (i = 0; i < localStorage.length; i++) {
     articleJSON.temporaryPrice = data.price; // Variable utilisée dans la fonction buildCartArticle()
     // Insertion de l'élément sur la page panier
     let cartItems = document.getElementById('cart__items');
-    cartItems.innerHTML += buildCartArticle(articleJSON);
+    const parser = new DOMParser();
+    const parserItems = new DOMParser();
+    let itemsContent = "";
+    itemsContent = parser.parseFromString(buildCartArticle(articleJSON), "text/html").body.innerHTML;
+    cartItems.innerHTML += parserItems.parseFromString(itemsContent, "text/html").body.innerHTML;
+
     // Mise à jour des qtés et prix totaux
     totalQty += articleJSON.objectQty;
-    document.getElementById('totalQuantity').innerText = totalQty;
+    document.getElementById('totalQuantity').textContent = totalQty;
     checkQuantity(document.getElementById(articleJSON.objectID + "__qty"));
     checkTotalPrice();
   });
@@ -60,12 +65,12 @@ function checkTotalPrice() {
   [].forEach.call(articles, function (item) {
       let parent = item.parentElement.closest('article');
       let dataId = parent.getAttribute('data-id');
-      let innerPrice = parseInt(document.getElementById(dataId + "__price").innerHTML.replace("€", ""));
+      let innerPrice = parseInt(document.getElementById(dataId + "__price").textContent.replace("€", ""));
       let qTy = item.value;
       let articlePrice = qTy * innerPrice;
       tempTotalPrice += articlePrice;
   });
-  totalPriceHTML.innerHTML = tempTotalPrice;
+  totalPriceHTML.textContent = tempTotalPrice;
 }
 
 // Mise à jour des qtés à chaque changement sur le panier
@@ -86,10 +91,10 @@ function checkQuantity (elt) {
   // Ajustement de la qté totale
   if (checkedObj.objectQty > oldQty) {
     totalQty += checkedObj.objectQty - oldQty;
-    document.getElementById('totalQuantity').innerText = totalQty;
+    document.getElementById('totalQuantity').textContent = totalQty;
   } else if (checkedObj.objectQty < oldQty) {
     totalQty -= oldQty - checkedObj.objectQty;
-    document.getElementById('totalQuantity').innerText = totalQty;
+    document.getElementById('totalQuantity').textContent = totalQty;
   }
 
   checkTotalPrice(); // Re-check du prix total
@@ -147,10 +152,10 @@ form.email.addEventListener("input", (event) => {
 function checkFirstName(prenom) {
   const firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
   if (regexChar.test(prenom)) { // Si l'entrée passe le test Regex, renvoie true et n'affiche rien
-    firstNameErrorMsg.innerHTML = "";
+    firstNameErrorMsg.textContent = "";
     return true
   } else { // Si l'entrée ne passe pas le test Regex, renvoie false + affiche un message d'erreur
-    firstNameErrorMsg.innerHTML = "Veuillez renseigner votre prénom !";
+    firstNameErrorMsg.textContent = "Veuillez renseigner votre prénom !";
     return false
   }
 }
@@ -158,10 +163,10 @@ function checkFirstName(prenom) {
 function checkLastName(nom) {
   const lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
   if (regexChar.test(nom)) {
-    lastNameErrorMsg.innerHTML = "";
+    lastNameErrorMsg.textContent = "";
     return true
   } else {
-    lastNameErrorMsg.innerHTML = "Veuillez renseigner votre nom !";
+    lastNameErrorMsg.textContent = "Veuillez renseigner votre nom !";
     return false
   }
 }
@@ -169,10 +174,10 @@ function checkLastName(nom) {
 function checkAddress(adresse) {
   const addressErrorMsg = document.getElementById("addressErrorMsg");
   if (regexAdress.test(adresse)) {
-    addressErrorMsg.innerHTML = "";
+    addressErrorMsg.textContent = "";
     return true
   } else {
-    addressErrorMsg.innerHTML = "Veuillez renseigner votre adresse !";
+    addressErrorMsg.textContent = "Veuillez renseigner votre adresse !";
     return false
   }
 }
@@ -180,10 +185,10 @@ function checkAddress(adresse) {
 function checkCity(ville) {
   const cityErrorMsg = document.getElementById("cityErrorMsg");
   if (regexChar.test(ville)) {
-    cityErrorMsg.innerHTML = "";
+    cityErrorMsg.textContent = "";
     return true
   } else {
-    cityErrorMsg.innerHTML = "Veuillez renseigner votre ville !";
+    cityErrorMsg.textContent = "Veuillez renseigner votre ville !";
     return false
   }
 }
@@ -191,10 +196,10 @@ function checkCity(ville) {
 function checkEmail(email) {
   const emailErrorMsg = document.getElementById("emailErrorMsg");
   if (regexEmail.test(email)) {
-    emailErrorMsg.innerHTML = "";
+    emailErrorMsg.textContent = "";
     return true
   } else {
-    emailErrorMsg.innerHTML = "Veuillez renseigner votre adresse mail !";
+    emailErrorMsg.textContent = "Veuillez renseigner votre adresse mail !";
     return false
   }
 }

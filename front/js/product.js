@@ -14,21 +14,24 @@ fetch(`http://localhost:3000/api/products/${id}`)
         console.log(value);
         // Insertion des infos dans le DOM
         let img = document.getElementsByClassName("item__img")[0];
-        img.innerHTML += `<img id="item__image" src="${value.imageUrl}" alt="${value.altTxt}">`
-        
+
+        let content = `<img id="item__image" src="${value.imageUrl}" alt="${value.altTxt}">`
+        img.innerHTML =  (new DOMParser()).parseFromString(content, "text/html").body.innerHTML;
         let title = document.getElementById("title");
-        title.innerHTML += `${value.name}`
+        title.textContent += `${value.name}`
         
         let price = document.getElementById("price");
-        price.innerHTML += `${value.price}`
+        price.textContent += `${value.price}`
         
         let desc = document.getElementById("description");
-        desc.innerHTML += `${value.description}`
+        desc.textContent += `${value.description}`
         
         let colors = document.getElementById("colors");
-        for (i = 0; i < value.colors.length; i++) {
-            colors.innerHTML += `<option value="${value.colors[i]}">${value.colors[i]}</option>`
+        let option = "";
+        for (let i = 0; i < value.colors.length; i++) {
+            option += `<option value="${value.colors[i]}">${value.colors[i]}</option>`
         }
+        colors.innerHTML = (new DOMParser()).parseFromString(option, "text/html").body.innerHTML;
     })
     .catch(function(err) {
         // Une erreur est survenue

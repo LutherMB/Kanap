@@ -3,5 +3,5 @@ const orderHTML = document.getElementById("orderId");
 const orderId = localStorage.orderID;
 
 // Affiche le numéro de commande avant de vider le Local Storage
-orderHTML.innerHTML = orderId;
+orderHTML.textContent = orderId;
 localStorage.clear();
